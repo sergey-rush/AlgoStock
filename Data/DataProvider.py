@@ -1,5 +1,5 @@
 import psycopg2
-
+from Core.Issuer import Issuer
 from Core.Stock import Stock
 
 
@@ -22,6 +22,17 @@ class DataProvider:
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
 
+    def get_issuers(self):
+        self._open_connection()
+        self.cursor.execute("SELECT id, ticker, name FROM issuers;")
+        items = self.cursor.fetchall()
+        self.connection.close()
+        item_list = []
+        for item in items:
+            issuer = Issuer(item[0], item[1], item[2])
+            item_list.append(issuer)
+        return item_list
+
     def get_stock_by_stock_id(self, stock_id):
         self._open_connection()
         self.cursor.execute("SELECT id, issuer_id, ticker, per, trade_date, open, high, low, close, volume FROM stocks WHERE id = %s;", [stock_id])
@@ -29,14 +40,6 @@ class DataProvider:
         self.connection.close()
         stock = Stock(item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7], item[8], item[9])
         return stock
-
-    def insert_stock(self, stock):
-        self._open_connection()
-        self.cursor.execute("INSERT INTO stocks (issuer_id, ticker, per, trade_date, open, high, low, close, volume) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;", (stock.issuer_id, stock.ticker, stock.per, stock.trade_date, stock.open, stock.high, stock.low, stock.close, stock.volume))
-        id = self.cursor.fetchone()[0]
-        self.connection.commit()
-        self.connection.close()
-        return id
 
     def get_stocks_by_issuer_id(self, issuer_id):
         self._open_connection()
@@ -48,6 +51,14 @@ class DataProvider:
             stock = Stock(item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7], item[8], item[9])
             item_list.append(stock)
         return item_list
+
+    def insert_stock(self, stock):
+        self._open_connection()
+        self.cursor.execute("INSERT INTO stocks (issuer_id, ticker, per, trade_date, open, high, low, close, volume) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;", (stock.issuer_id, stock.ticker, stock.per, stock.trade_date, stock.open, stock.high, stock.low, stock.close, stock.volume))
+        id = self.cursor.fetchone()[0]
+        self.connection.commit()
+        self.connection.close()
+        return id
 
     def copy_probs_from_file(self):
         self._open_connection()

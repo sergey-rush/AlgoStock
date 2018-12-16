@@ -1,7 +1,8 @@
 class Issuer:
-    def __init__(self, id, ticker):
+    def __init__(self, id, ticker, name):
         self.id = id
         self.ticker = ticker
+        self.name = name
 
     def __eq__(self, other):
         return self.ticker == other.ticker

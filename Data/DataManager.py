@@ -9,14 +9,17 @@ class DataManager:
             self.data_provider = DataProvider()
             self.prob_dict = {}
 
+        def get_issuers(self):
+            return self.data_provider.get_issuers()
+
         def get_stock_by_stock_id(self, stock_id):
             return self.data_provider.get_stock_by_stock_id(stock_id)
 
+        def get_stocks_by_issuer_id(self, issuer_id):
+            return self.data_provider.get_stocks_by_issuer_id(issuer_id)
+
         def insert_stock(self, stock):
             return self.data_provider.insert_stock(stock)
-
-        def get_stocks(self):
-            return self.data_provider.get_stocks()
 
         def get_probs(self):
             if len(self.prob_dict) == 0:
